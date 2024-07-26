@@ -2,9 +2,11 @@
 //  to get the code to compile.
 
 pub fn summary(ticket: Ticket) -> (Ticket, Summary) {
-    (ticket, ticket.summary())
+    let ticket_sum = ticket.clone();
+    (ticket, ticket_sum.summary())
 }
 
+#[derive(Clone)]
 pub struct Ticket {
     pub title: String,
     pub description: String,
