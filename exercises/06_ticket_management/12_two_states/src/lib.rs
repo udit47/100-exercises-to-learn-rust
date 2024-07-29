@@ -7,6 +7,7 @@
 // and returns an `Option<&Ticket>`.
 
 use ticket_fields::{TicketDescription, TicketTitle};
+use unique_id::{random::RandomGenerator, Generator};
 
 #[derive(Clone)]
 pub struct TicketStore {
@@ -14,7 +15,7 @@ pub struct TicketStore {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct TicketId(u64);
+pub struct TicketId(u128);
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Ticket {
@@ -40,12 +41,27 @@ pub enum Status {
 impl TicketStore {
     pub fn new() -> Self {
         Self {
-            tickets: Vec::new(),
+            tickets: Vec::new()
         }
     }
 
-    pub fn add_ticket(&mut self, ticket: Ticket) {
+    pub fn add_ticket(&mut self, ticket_draft: TicketDraft) -> TicketId {
+        let gen = RandomGenerator::default();
+        let ticket_id: u128 = gen.next_id();
+        let ticket: Ticket = Ticket {
+            id: TicketId(ticket_id),
+            title: ticket_draft.title,
+            description: ticket_draft.description,
+            status: Status::ToDo
+        };
         self.tickets.push(ticket);
+        TicketId(
+            ticket_id
+        )
+    }
+
+    pub fn get(&mut self, id: TicketId) -> Option<&Ticket> {
+        self.tickets.iter().find(|ticket| ticket.id == id)
     }
 }
 

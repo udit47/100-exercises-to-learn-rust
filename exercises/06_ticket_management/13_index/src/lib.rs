@@ -1,5 +1,23 @@
 // TODO: Implement `Index<&TicketId>` and `Index<TicketId>` for `TicketStore`.
 
+use core::ops::Index;
+
+impl Index<TicketId> for TicketStore {
+    type Output = Ticket;
+
+    fn index(&self, id: TicketId) -> &Self::Output {
+        self.tickets.iter().find(|ticket| ticket.id == id).unwrap()
+    }
+}
+
+impl Index<&TicketId> for TicketStore {
+    type Output = Ticket;
+
+    fn index(&self, id: &TicketId) -> &Self::Output {
+        &self[*id]
+    }
+}
+
 use ticket_fields::{TicketDescription, TicketTitle};
 
 #[derive(Clone)]
