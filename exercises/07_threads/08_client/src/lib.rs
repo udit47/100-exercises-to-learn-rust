@@ -7,23 +7,33 @@ pub mod store;
 
 #[derive(Clone)]
 // TODO: flesh out the client implementation.
-pub struct TicketStoreClient {}
+pub struct TicketStoreClient {
+    sender: Sender<Command>
+}
 
 impl TicketStoreClient {
     // Feel free to panic on all errors, for simplicity.
     pub fn insert(&self, draft: TicketDraft) -> TicketId {
-        todo!()
+        let (response_sender, response_receiver) = std::sync::mpsc::channel();
+        let commnd = Command::Insert { draft: draft, response_channel: response_sender };
+        self.sender.send(commnd).expect("Did you actually spawn a thread? The channel is closed!");
+        let id = response_receiver.recv().expect("No Response received");
+        id
     }
 
     pub fn get(&self, id: TicketId) -> Option<Ticket> {
-        todo!()
+        let (response_sender, response_receiver) = std::sync::mpsc::channel();
+        let command = Command::Get { id: id, response_channel: response_sender };
+        self.sender.send(command).expect("Did you actually spawn a thread? The channel is closed!");
+        let ticket = response_receiver.recv().expect("");
+        ticket
     }
 }
 
 pub fn launch() -> TicketStoreClient {
     let (sender, receiver) = std::sync::mpsc::channel();
     std::thread::spawn(move || server(receiver));
-    todo!()
+    TicketStoreClient { sender }
 }
 
 // No longer public! This becomes an internal detail of the library now.

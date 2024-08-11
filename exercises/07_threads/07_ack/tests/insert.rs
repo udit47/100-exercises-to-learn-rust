@@ -26,6 +26,7 @@ fn insert_works() {
     let ticket_id: TicketId = response_receiver.recv().expect("No response received!");
 
     let (response_sender, response_receiver) = std::sync::mpsc::channel();
+    
     let command = Command::Get {
         id: ticket_id,
         response_sender,
